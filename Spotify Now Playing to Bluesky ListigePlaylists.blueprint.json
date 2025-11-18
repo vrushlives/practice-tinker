@@ -1,0 +1,541 @@
+{
+    "name": "Integration Spotify, HTTP, Bluesky, JSON",
+    "flow": [
+        {
+            "id": 1,
+            "module": "spotify:watchRecentlyPlayedTracks",
+            "version": 2,
+            "parameters": {
+                "limit": 1,
+                "__IMTCONN__": 3599040
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "spotify"
+                            },
+                            "label": "Vrush"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:spotify",
+                        "label": "Connection",
+                        "required": true
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 2,
+            "module": "http:ActionGetFile",
+            "version": 3,
+            "parameters": {
+                "handleErrors": false
+            },
+            "mapper": {
+                "url": "{{1.track.album.images[].url}}",
+                "method": "get",
+                "serializeUrl": false,
+                "shareCookies": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 0
+                },
+                "restore": {},
+                "parameters": [
+                    {
+                        "name": "handleErrors",
+                        "type": "boolean",
+                        "label": "Evaluate all states as errors (except for 2xx and 3xx )",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "url",
+                        "type": "url",
+                        "label": "URL",
+                        "required": true
+                    },
+                    {
+                        "name": "serializeUrl",
+                        "type": "boolean",
+                        "label": "Serialize URL",
+                        "required": true
+                    },
+                    {
+                        "name": "method",
+                        "type": "hidden",
+                        "label": "Method"
+                    },
+                    {
+                        "name": "shareCookies",
+                        "type": "boolean",
+                        "label": "Share cookies with other HTTP modules",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 3,
+            "module": "bluesky:uploadMedia",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 3599198
+            },
+            "mapper": {
+                "data": "{{2.data}}",
+                "filename": "{{2.fileName}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "bluesky"
+                            },
+                            "label": "My Bluesky connection (vrushalikhadilkar.bsky.social)"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:bluesky",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "filename",
+                        "type": "filename",
+                        "label": "File name",
+                        "required": true
+                    },
+                    {
+                        "name": "data",
+                        "type": "buffer",
+                        "label": "Data",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 4,
+            "module": "json:CreateJSON",
+            "version": 1,
+            "parameters": {
+                "type": 246551,
+                "space": ""
+            },
+            "mapper": {
+                "collection": "",
+                "repo": "vrushalikhadilkar.bsky.social",
+                "record": {
+                    "text": "",
+                    "$type": "",
+                    "createdAt": "",
+                    "embed": {
+                        "$type": "",
+                        "external": {
+                            "uri": "",
+                            "title": "",
+                            "description": "",
+                            "thumb": {
+                                "$type": "",
+                                "ref": {
+                                    "$link": ""
+                                },
+                                "mimeType": "",
+                                "size": ""
+                            }
+                        }
+                    },
+                    "facets": [],
+                    "langs": []
+                }
+            },
+            "metadata": {
+                "designer": {
+                    "x": 900,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "type": {
+                            "label": "Bluesky JSON Body"
+                        },
+                        "space": {
+                            "label": "Empty"
+                        }
+                    },
+                    "expect": {
+                        "record": {
+                            "nested": {
+                                "facets": {
+                                    "mode": "chose"
+                                },
+                                "langs": {
+                                    "mode": "chose"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "type",
+                        "type": "udt",
+                        "label": "Data structure",
+                        "required": true
+                    },
+                    {
+                        "name": "space",
+                        "type": "select",
+                        "label": "Indentation",
+                        "validate": {
+                            "enum": [
+                                "tab",
+                                "2",
+                                "4"
+                            ]
+                        }
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "collection",
+                        "type": "text",
+                        "label": "Collection"
+                    },
+                    {
+                        "name": "repo",
+                        "type": "text",
+                        "label": "Repo"
+                    },
+                    {
+                        "name": "record",
+                        "type": "collection",
+                        "label": "Record",
+                        "spec": [
+                            {
+                                "name": "text",
+                                "type": "text",
+                                "label": "Text"
+                            },
+                            {
+                                "name": "$type",
+                                "type": "text"
+                            },
+                            {
+                                "name": "createdAt",
+                                "type": "date",
+                                "label": "Created at"
+                            },
+                            {
+                                "name": "embed",
+                                "type": "collection",
+                                "label": "Embed",
+                                "spec": [
+                                    {
+                                        "name": "$type",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "external",
+                                        "type": "collection",
+                                        "label": "External",
+                                        "spec": [
+                                            {
+                                                "name": "uri",
+                                                "type": "text",
+                                                "label": "URI"
+                                            },
+                                            {
+                                                "name": "title",
+                                                "type": "text",
+                                                "label": "Title"
+                                            },
+                                            {
+                                                "name": "description",
+                                                "type": "text",
+                                                "label": "Description"
+                                            },
+                                            {
+                                                "name": "thumb",
+                                                "type": "collection",
+                                                "label": "Thumb",
+                                                "spec": [
+                                                    {
+                                                        "name": "$type",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "name": "ref",
+                                                        "type": "collection",
+                                                        "label": "Ref",
+                                                        "spec": [
+                                                            {
+                                                                "name": "$link",
+                                                                "type": "text"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "name": "mimeType",
+                                                        "type": "text",
+                                                        "label": "Mime type"
+                                                    },
+                                                    {
+                                                        "name": "size",
+                                                        "type": "number",
+                                                        "label": "Size"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "facets",
+                                "type": "array",
+                                "label": "Facets",
+                                "spec": {
+                                    "type": "collection",
+                                    "spec": [
+                                        {
+                                            "name": "index",
+                                            "label": null,
+                                            "type": "collection",
+                                            "spec": [
+                                                {
+                                                    "name": "byteStart",
+                                                    "label": null,
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "name": "byteEnd",
+                                                    "label": null,
+                                                    "type": "number"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "features",
+                                            "label": null,
+                                            "type": "array",
+                                            "spec": {
+                                                "type": "collection",
+                                                "spec": [
+                                                    {
+                                                        "name": "$type",
+                                                        "label": null,
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "name": "did",
+                                                        "label": null,
+                                                        "type": "text"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    "name": "value"
+                                }
+                            },
+                            {
+                                "name": "langs",
+                                "type": "array",
+                                "label": "Langs",
+                                "spec": {
+                                    "type": "text",
+                                    "name": "value"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": 5,
+            "module": "bluesky:makeAnApiCall",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 3599198
+            },
+            "mapper": {
+                "url": "{{`3`}}",
+                "method": "POST",
+                "headers": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ]
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1200,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Bluesky connection (vrushalikhadilkar.bsky.social)",
+                            "data": {
+                                "scoped": "true",
+                                "connection": "bluesky"
+                            }
+                        }
+                    },
+                    "expect": {
+                        "method": {
+                            "mode": "chose",
+                            "label": "POST"
+                        },
+                        "headers": {
+                            "mode": "chose",
+                            "items": [
+                                null
+                            ]
+                        },
+                        "qs": {
+                            "mode": "chose"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:bluesky",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "url",
+                        "type": "text",
+                        "label": "URL",
+                        "required": true
+                    },
+                    {
+                        "name": "method",
+                        "type": "select",
+                        "label": "Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "GET",
+                                "POST",
+                                "PUT",
+                                "PATCH",
+                                "DELETE"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "headers",
+                        "type": "array",
+                        "label": "Headers",
+                        "spec": {
+                            "spec": [
+                                {
+                                    "name": "key",
+                                    "type": "text",
+                                    "label": "Key"
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "text",
+                                    "label": "Value"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Header",
+                            "name": "value"
+                        }
+                    },
+                    {
+                        "name": "qs",
+                        "type": "array",
+                        "label": "Query String",
+                        "spec": {
+                            "spec": [
+                                {
+                                    "name": "key",
+                                    "type": "text",
+                                    "label": "Key"
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "text",
+                                    "label": "Value"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Parameter",
+                            "name": "value"
+                        }
+                    },
+                    {
+                        "name": "body",
+                        "type": "text",
+                        "label": "Body"
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu1.make.com",
+        "notes": []
+    }
+}
