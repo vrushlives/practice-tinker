@@ -394,7 +394,8 @@
                 "__IMTCONN__": 3599198
             },
             "mapper": {
-                "url": "{{`3`}}",
+                "url": "/xrpc/com.atproto.repo.createRecord",
+                "body":"{{4.json}}", 
                 "method": "POST",
                 "headers": [
                     {
